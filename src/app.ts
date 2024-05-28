@@ -13,14 +13,20 @@ app.head("*", (req: Request, res: Response): void => {
 
 app.get("/", async (req: Request, res: Response): Promise<void> => {
   const url = req.query.url ?? "https://google.com";
-  const pdfBuffer = await getPagePdf(url.toString());
 
-  res.contentType("application/pdf");
-  res.send(pdfBuffer);
+  try {
+    const pdfBuffer = await getPagePdf(url.toString());
+
+    res.contentType("application/pdf");
+    res.send(pdfBuffer);
+  } catch (e) {
+    res.contentType("text/plain");
+    res.status(500).send(e.toString());
+  }
 });
 
 async function getPagePdf(url: string){
-  const browser = await playwright.chromium.launch({headless: true});
+  const browser = await playwright.chromium.launch({headless: false});
 
   const page = await browser.newPage();
   await page.goto(url);

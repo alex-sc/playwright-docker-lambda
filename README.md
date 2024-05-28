@@ -8,5 +8,12 @@
 
 ## AWS
 
+
+
 ## GCP
-### Cloud Function
+
+### Cloud Run
+To deploy from source using Cloud Build
+
+```gcloud run deploy --memory=1024Mi```
+See https://cloud.google.com/sdk/gcloud/reference/run/deploy for other options

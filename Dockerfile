@@ -14,7 +14,10 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Export on port 8080
+# Expose on port 8080
 EXPOSE 8080
 
-CMD ["npm", "run", "start"]
+# Install xvfb for headful mode
+RUN apt-get -y install xauth xvfb && apt-get clean
+
+ENTRYPOINT xvfb-run -a npm run start
