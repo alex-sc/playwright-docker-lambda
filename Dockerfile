@@ -1,4 +1,4 @@
-FROM node:20-bookworm-slim
+FROM node:20-bullseye-slim
 
 ### Playwright with Chromiun
 RUN npx playwright@1.44.1 install --with-deps chromium
