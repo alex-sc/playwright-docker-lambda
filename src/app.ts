@@ -20,7 +20,7 @@ app.get("/", async (req: Request, res: Response): Promise<void> => {
 });
 
 async function getPagePdf(url: string){
-  const browser = await playwright.chromium.launch({headless: false});
+  const browser = await playwright.chromium.launch({headless: true});
 
   const page = await browser.newPage();
   await page.goto(url);
