@@ -1,14 +1,26 @@
 {
   "name": "playwright-docker",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {},
-  "keywords": [],
-  "author": "",
+  "type": "module",
   "license": "ISC",
+  "engines": {
+    "node": "18.x.x"
+  },
+  "files": [
+    "dist/**.*"
+  ],
+  "scripts": {
+    "dev": "NODE_ENV=development tsx watch src/app.ts",
+    "start": "NODE_ENV=production node ./dist/app.js",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "playwright": "1.44.1",
+    "express": "^4.18.2"
+  },
   "devDependencies": {
-    "@playwright/test": "^1.44.1",
-    "@types/node": "^20.12.12"
+    "ts-node": "^10.9.1",
+    "tsx": "4.6.0",
+    "typescript": "^5.2.2"
   }
 }
