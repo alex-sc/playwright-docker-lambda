@@ -1,11 +1,4 @@
 {
-  "name": "playwright-docker",
-  "version": "1.0.0",
-  "type": "module",
-  "license": "ISC",
-  "engines": {
-    "node": "18.x.x"
-  },
   "files": [
     "dist/**.*"
   ],
@@ -15,6 +8,9 @@
     "build": "tsc"
   },
   "dependencies": {
+    "@types/aws-lambda": "^8.10.138",
+    "aws-sdk": "^2.1632.0",
+    "aws-lambda-ric": "^3.1.0",
     "playwright": "1.44.1",
     "express": "^4.18.2"
   },

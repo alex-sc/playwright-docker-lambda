@@ -1,7 +1,5 @@
 import express, { Request, Response } from "express";
 import playwright = require('playwright');
-import { Server } from "node:http";
-import { AddressInfo } from "node:net";
 import process from "node:process";
 
 export const app = express();
@@ -25,6 +23,18 @@ app.get("/", async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+exports.handler = async (event) => {
+  const pdfBuffer = await getPagePdf("https://google.com");
+
+  return {
+    'headers': { "Content-Type": "application/pdf" },
+    'statusCode': 200,
+    'body': pdfBuffer.toString("base64"),
+    'isBase64Encoded': true
+  }
+};
+
+
 async function getPagePdf(url: string){
   const browser = await playwright.chromium.launch({headless: false});
 
@@ -39,55 +49,7 @@ async function getPagePdf(url: string){
 }
 
 
-let server: Server;
-export async function start(port: number | string): Promise<Server> {
-  return new Promise((resolve) => {
-    server = app
-        .listen(port, () => {
-          const address = server.address() as AddressInfo;
-          console.info(`Listening on http://localhost:${address.port}`);
-          ["SIGTERM", "SIGINT"].forEach((signal): void => {
-            process.on(signal, stop);
-          });
-          resolve(server);
-        })
-        .on("close", () => {
-          console.info("Server connection closed");
-        })
-        .on("error", async (error) => {
-          await stop(error);
-        });
-  });
-}
-export async function stop(signal?: string | Error): Promise<void> {
-  if (signal instanceof Error) {
-    process.exitCode = 1;
-    console.error(`error: ${signal.message}`);
-    console.error("stop (error)");
-  } else {
-    if (signal) {
-      console.info(`stop (${signal})`);
-    } else {
-      console.info("stop");
-    }
-  }
-  if (server) {
-    try {
-      await new Promise<void>((resolve, reject) => {
-        server.close((err) => {
-          err ? reject(err) : resolve();
-        });
-      });
-    } catch (error: any) {
-      process.exitCode = 1;
-      console.error(error.message);
-    }
-  }
-  console.info("Server stopped");
-}
-
-// If this module is the main module, then start the server
-if (import.meta.url.endsWith(process.argv[1]!)) {
-  const port = process.env["PORT"] || "8080";
-  await start(port);
-}
+const port = process.env["PORT"] || "8080";
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`)
+})
