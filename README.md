@@ -29,10 +29,16 @@ See https://docs.aws.amazon.com/AmazonECS/latest/developerguide/create-container
 - `docker build -f Dockerfile-lambda -t 175379499180.dkr.ecr.us-east-1.amazonaws.com/playwright-docker-lambda .`
 - Push the image to Amazon ECR
 - `docker push 175379499180.dkr.ecr.us-east-1.amazonaws.com/playwright-docker-lambda`
+- Create execution role for lambda (if needed)
+- `aws iam create-role --role-name playwright-lambda-role --assume-role-policy-document '{"Version": "2012-10-17","Statement": [{ "Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"}, "Action": "sts:AssumeRole"}]}'`
 - Create the lambda
-- ...
+- `aws lambda create-function --function-name playwright-lambda --timeout 300 --memory-size 1024 --publish --role arn:aws:iam::175379499180:role/playwright-lambda-role --code ImageUri=175379499180.dkr.ecr.us-east-1.amazonaws.com/playwright-docker-lambda:latest --package-type Image`
+- Optionally, assign HTTP endpoint
+- `aws lambda create-function-url-config --function-name playwright-lambda --auth-type NONE`
+- and respective permissions
+- `aws lambda add-permission --function-name playwright-lambda --statement-id FunctionURLAllowPublicAccess --action lambda:InvokeFunctionUrl --principal '*' --function-url-auth-type NONE`
 - Update the lambda
-- `aws lambda update-function-code --function-name wrfre --image-uri 175379499180.dkr.ecr.us-east-1.amazonaws.com/playwright-docker-lambda:latest`
+- `aws lambda update-function-code --function-name playwright-lambda --image-uri 175379499180.dkr.ecr.us-east-1.amazonaws.com/playwright-docker-lambda:latest`
 
 
 ## GCP

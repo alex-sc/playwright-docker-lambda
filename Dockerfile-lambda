@@ -1,11 +1,10 @@
-# Define custom function directory
-ARG FUNCTION_DIR="/function"
-
-#FROM node:20-bookworm as build-image
 FROM mcr.microsoft.com/playwright:v1.44.1-jammy
 
-# Include global arg in this stage of the build
-ARG FUNCTION_DIR
+# Remove unused files
+RUN rm -rf /ms-playwright/firefox-* /ms-playwright/webkit-*
+
+# Define custom function directory
+ARG FUNCTION_DIR="/function"
 
 # Install build dependencies
 RUN apt-get update && \
@@ -19,12 +18,15 @@ RUN apt-get update && \
     libcurl4-openssl-dev \
     xauth \
     xvfb
-#    dbus \
-#    dbus-x11
 
 # Copy function code
-RUN mkdir -p ${FUNCTION_DIR}
-COPY . ${FUNCTION_DIR}
+RUN mkdir -p ${FUNCTION_DIR}/src
+
+# Copy build files
+COPY *.json src ${FUNCTION_DIR}
+
+# Copy src folder
+COPY src ${FUNCTION_DIR}/src
 
 # Set working directory to function root directory
 WORKDIR ${FUNCTION_DIR}
@@ -42,13 +44,11 @@ RUN npm run build
 # by default npm writes logs under /home/.npm and Lambda fs is read-only
 ENV NPM_CONFIG_CACHE=/tmp/.npm
 
-# Required for Playwright
+# Required for Playwright because Lambda fs is read-only
 ENV HOME=/tmp/
 
 # Playwright debug
 ENV DEBUG=pw:browser,pw:api,pw:webserver
-
-#ENV DBUS_SESSION_BUS_ADDRESS autolaunch:
 
 # Set runtime interface client as default command for the container runtime
 ENTRYPOINT ["xvfb-run", "-a", "npx", "aws-lambda-ric"]
