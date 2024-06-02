@@ -19,43 +19,36 @@ RUN apt-get update && \
     libcurl4-openssl-dev \
     xauth \
     xvfb
+#    dbus \
+#    dbus-x11
 
 # Copy function code
 RUN mkdir -p ${FUNCTION_DIR}
 COPY . ${FUNCTION_DIR}
 
+# Set working directory to function root directory
 WORKDIR ${FUNCTION_DIR}
 
 # Install Node.js dependencies
 RUN npm install
 
+# Install AWS Lambda runtime
 RUN npm install aws-lambda-ric
 
+# Build the app
 RUN npm run build
-
-#RUN npx playwright@1.44.1 install --with-deps chromium
-
-#RUN npx playwright install
-
-# Grab a fresh slim copy of the image to reduce the final size
-#FROM node:20-bookworm-slim
 
 # Required for Node runtimes which use npm@8.6.0+ because
 # by default npm writes logs under /home/.npm and Lambda fs is read-only
 ENV NPM_CONFIG_CACHE=/tmp/.npm
 
-# Include global arg in this stage of the build
-#ARG FUNCTION_DIR
+# Required for Playwright
+ENV HOME=/tmp/
 
-# Set working directory to function root directory
-WORKDIR ${FUNCTION_DIR}
+# Playwright debug
+ENV DEBUG=pw:browser,pw:api,pw:webserver
 
-# Copy in the built dependencies
-#COPY --from=build-image ${FUNCTION_DIR} ${FUNCTION_DIR}
-
-#RUN npx playwright@1.44.1 install --with-deps chromium
-
-#RUN npx playwright install
+#ENV DBUS_SESSION_BUS_ADDRESS autolaunch:
 
 # Set runtime interface client as default command for the container runtime
 ENTRYPOINT ["xvfb-run", "-a", "npx", "aws-lambda-ric"]

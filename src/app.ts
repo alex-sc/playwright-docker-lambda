@@ -9,6 +9,7 @@ app.head("*", (req: Request, res: Response): void => {
   res.send("Ok");
 });
 
+// Docker entry point
 app.get("/", async (req: Request, res: Response): Promise<void> => {
   const url = req.query.url ?? "https://google.com";
 
@@ -23,6 +24,7 @@ app.get("/", async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+// Lambda handler
 exports.handler = async (event) => {
   const pdfBuffer = await getPagePdf("https://google.com");
 
@@ -36,7 +38,16 @@ exports.handler = async (event) => {
 
 
 async function getPagePdf(url: string){
-  const browser = await playwright.chromium.launch({headless: false});
+  const browser = await playwright.chromium.launch({
+    headless: false,
+    args: [
+      "--disable-gpu-sandbox",
+      "--single-process",
+      "--disable-gpu",
+      "--disable-dev-shm-usage",
+      "--no-sandbox"
+    ]
+  });
 
   const page = await browser.newPage();
   await page.goto(url);
@@ -48,8 +59,11 @@ async function getPagePdf(url: string){
   return pdf;
 }
 
+const isLambda = !!process.env.LAMBDA_TASK_ROOT;
+if (!isLambda) {
+  const port = process.env["PORT"] || "8080";
 
-const port = process.env["PORT"] || "8080";
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+  app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`)
+  });
+}

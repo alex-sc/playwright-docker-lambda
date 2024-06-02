@@ -29,6 +29,10 @@ See https://docs.aws.amazon.com/AmazonECS/latest/developerguide/create-container
 - `docker build -f Dockerfile-lambda -t 175379499180.dkr.ecr.us-east-1.amazonaws.com/playwright-docker-lambda .`
 - Push the image to Amazon ECR
 - `docker push 175379499180.dkr.ecr.us-east-1.amazonaws.com/playwright-docker-lambda`
+- Create the lambda
+- ...
+- Update the lambda
+- `aws lambda update-function-code --function-name wrfre --image-uri 175379499180.dkr.ecr.us-east-1.amazonaws.com/playwright-docker-lambda:latest`
 
 
 ## GCP
